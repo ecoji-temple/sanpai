@@ -57,8 +57,9 @@ main{width:100%;max-width:440px;padding:0 16px 28px}
 <canvas id="cv" width="1080" height="1920" hidden></canvas>
 <script>
 // ===== LINE登録の確認（LIFF） =====
-const LIFF_ID="★ここにLIFF IDを入れる★"; // LINE Developersで発行されたLIFF ID
-const PREVIEW=location.hash==="#preview"||LIFF_ID.startsWith("★");
+const LIFF_ID="2012695554-6ZBU7AbK"; // LINE Developersで発行されたLIFF ID
+const PREVIEW=location.hash==="#preview"||!/github\.io$/.test(location.hostname); // GitHub Pages以外（試作の確認用）は見本モード
+const TEST=/test/.test(decodeURIComponent(location.search)); // 本番での動作確認用：URLに ?test=1 を付けると授与日として扱う
 async function lineCheck(){ // "ok" | "notfriend" | "wait" | "error"
  if(PREVIEW)return"ok";
  try{
@@ -164,7 +165,7 @@ function offday(today){
 (async()=>{
  await Promise.all([load("mon"),load("horin")]);
  try{await Promise.all(["250px 'Yuji Syuku'","60px 'Shippori Mincho B1'","100px 'Zen Antique'"].map(f=>document.fonts.load(f,"無量光清浄歓喜不断礙恵光寺印令和柳御坊")))}catch(e){}
- const today=new Date();const hit=eventDays(today.getFullYear()).find(([d])=>same(d,today));
+ const today=new Date();const hit=eventDays(today.getFullYear()).find(([d])=>same(d,today))||(TEST&&!PREVIEW?[today,0]:null);
  if(!hit){offday(today)}
  else{document.getElementById("area").innerHTML='<div class="off">LINEの登録を確認しています…</div>';
   const st=await lineCheck();
