@@ -24,7 +24,8 @@ main{width:100%;max-width:440px;padding:0 16px 28px}
 .sched table{width:100%;border-collapse:collapse;font:13.5px/1.5 sans-serif}
 .sched td{border-top:1px solid #eee;padding:7px 4px;vertical-align:top}
 .sched td:first-child{white-space:nowrap}
-.sched td:last-child{white-space:nowrap;color:#555}
+.sched .hn{font-weight:600}
+.sched .tm{color:#666;font-size:12.5px}
 .note{font:13px/1.7 sans-serif;color:#555;margin:6px 2px}
 .msg{font:13px/1.6 sans-serif;color:#7a1f1f;min-height:1.6em;text-align:center}
 .off{background:#fff;border-radius:8px;padding:18px;font:15px/1.8 sans-serif}
@@ -41,11 +42,11 @@ main{width:100%;max-width:440px;padding:0 16px 28px}
 <main>
  <div id="area"></div>
  <div class="sched"><h3>令和九年（2027年）の授与日</h3><table>
-<tr><td>1月3日（日）</td><td>初法座</td><td>14時〜</td></tr>
-<tr><td>3月20日（土）</td><td>彼岸会永代経法要</td><td>10時〜・14時〜</td></tr>
-<tr><td>5月23日（日）</td><td>さつき法要</td><td>11時〜</td></tr>
-<tr><td>8月13日（金）</td><td>お盆法要</td><td>8時〜・9時半〜・11時〜</td></tr>
-<tr><td>10月2日（土）<br>10月3日（日）</td><td>報恩講</td><td>両日とも14時〜</td></tr>
+<tr><td>1月3日（日）</td><td><span class="hn">初法座</span><br><span class="tm">14時〜</span></td></tr>
+<tr><td>3月20日（土）</td><td><span class="hn">彼岸会永代経法要</span><br><span class="tm">10時〜・14時〜</span></td></tr>
+<tr><td>5月23日（日）</td><td><span class="hn">さつき法要</span><br><span class="tm">11時〜</span></td></tr>
+<tr><td>8月13日（金）</td><td><span class="hn">お盆法要</span><br><span class="tm">8時〜・9時半〜・11時〜</span></td></tr>
+<tr><td>10月2日（土）<br>10月3日（日）</td><td><span class="hn">報恩講</span><br><span class="tm">両日とも14時〜</span></td></tr>
 </table></div>
  <div class="links">
   <a href="https://ecoji.org/" target="_blank" rel="noopener">恵光寺のホームページ</a>
@@ -160,7 +161,7 @@ async function save(cv,date){
 function offday(today){
  const t0=new Date(today.getFullYear(),today.getMonth(),today.getDate());
  const nxt=[...eventDays(today.getFullYear()),...eventDays(today.getFullYear()+1)].find(([d])=>d>=t0);
- document.getElementById("area").innerHTML='<div class="off"><h2>参拝紙は年五回、本堂の法要の日にお授けしています</h2>次は<b>'+(nxt[0].getMonth()+1)+'月'+nxt[0].getDate()+'日（'+EVENTS[nxt[1]].name+'）</b>です。'+LINEINFO+'</div>';
+ document.getElementById("area").innerHTML='<div class="off"><h2>参拝紙は年五回、本堂の法要の日にお授けしています</h2>'+LINEINFO+'</div>';
 }
 (async()=>{
  await Promise.all([load("mon"),load("horin")]);
