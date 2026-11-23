@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>柳の御坊 恵光寺 参拝紙</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@600&family=Yuji+Syuku&family=Zen+Antique&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:"Shippori Mincho B1",serif;background:#f3eee3;color:#2b2a26;display:flex;flex-direction:column;align-items:center}
+header{width:100%;max-width:440px;display:flex;align-items:center;gap:12px;padding:14px 16px}
+header img{height:44px}
+header h1{font-size:20px;margin:0;letter-spacing:.15em}
+main{width:100%;max-width:440px;padding:0 16px 28px}
+#card{width:100%;border-radius:6px;box-shadow:0 8px 24px rgba(0,0,0,.25);display:block;-webkit-touch-callout:default}
+.btn{display:block;width:100%;margin:16px 0 6px;padding:14px;font:600 17px/1 sans-serif;border:none;border-radius:28px;background:#7a1f1f;color:#fff;cursor:pointer}
+.expl{background:#fff;border-left:4px solid #B8975A;border-radius:6px;padding:12px 14px;margin:10px 0;font:15px/2.1 "Shippori Mincho B1",serif}
+.expl h3{margin:0 0 4px;font-size:18px;letter-spacing:.2em}
+.expl rt{font-size:.55em;letter-spacing:0}
+.expl .sub{margin:6px 0 0;font:12px/1.6 sans-serif;color:#888}
+.lineinfo{font:14px/1.7 sans-serif;background:#e8f6ee;border:1px solid #06c755;border-radius:8px;padding:10px 12px;margin:0 0 12px}
+.off .lineinfo{margin:12px 0 0}
+.sched{background:#fff;border-radius:8px;padding:14px;margin-top:18px}
+.sched h3{font:600 16px/1.4 "Shippori Mincho B1",serif;margin:0 0 8px}
+.sched table{width:100%;border-collapse:collapse;font:13.5px/1.5 sans-serif}
+.sched td{border-top:1px solid #eee;padding:7px 4px;vertical-align:top}
+.sched td:first-child{white-space:nowrap}
+.sched td:last-child{white-space:nowrap;color:#555}
+.note{font:13px/1.7 sans-serif;color:#555;margin:6px 2px}
+.msg{font:13px/1.6 sans-serif;color:#7a1f1f;min-height:1.6em;text-align:center}
+.off{background:#fff;border-radius:8px;padding:18px;font:15px/1.8 sans-serif}
+.off h2{font:600 17px/1.5 "Shippori Mincho B1",serif;margin:0 0 8px}
+.off ul{margin:8px 0 0;padding-left:1.2em}
+.preview{margin-top:22px;border-top:1px dashed #b9b2a2;padding-top:12px;font:13px/1.6 sans-serif;color:#666}
+.preview button{font:13px sans-serif;margin:4px 4px 0 0;padding:6px 10px;border:1px solid #999;border-radius:16px;background:#fff;cursor:pointer}
+.preview button.on{background:#2f3b31;color:#fff;border-color:#2f3b31}
+.links{display:flex;gap:8px;justify-content:center;margin-top:18px;flex-wrap:wrap}
+.links a{font:14px sans-serif;padding:9px 14px;border-radius:20px;text-decoration:none;color:#2f3b31;border:1px solid #2f3b31}
+.links a.line{background:#06c755;border-color:#06c755;color:#fff}
+</style></head><body>
+<header><img src="img/logo.png" alt="恵光寺ロゴ"><h1>参拝紙</h1></header>
+<main>
+ <div id="area"></div>
+ <div class="sched"><h3>令和九年（2027年）の授与日</h3><table>
+<tr><td>1月3日（日）</td><td>初法座</td><td>14時〜</td></tr>
+<tr><td>3月20日（土）</td><td>彼岸会永代経法要</td><td>10時〜・14時〜</td></tr>
+<tr><td>5月23日（日）</td><td>さつき法要</td><td>11時〜</td></tr>
+<tr><td>8月13日（金）</td><td>お盆法要</td><td>8時〜・9時半〜・11時〜</td></tr>
+<tr><td>10月2日（土）<br>10月3日（日）</td><td>報恩講</td><td>両日とも14時〜</td></tr>
+</table></div>
+ <div class="links">
+  <a href="https://ecoji.org/" target="_blank" rel="noopener">恵光寺のホームページ</a>
+  <a href="https://lin.ee/90IYtIx" target="_blank" rel="noopener" class="line">LINEで友だち追加</a>
+ </div>
+ <div class="preview" id="pv" hidden>【試作中だけ表示】見本を切り替え：<br></div>
+</main>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js" charset="utf-8"></script>
+<canvas id="cv" width="1080" height="1920" hidden></canvas>
+<script>
+// ===== LINE登録の確認（LIFF） =====
+const LIFF_ID="★ここにLIFF IDを入れる★"; // LINE Developersで発行されたLIFF ID
+const PREVIEW=location.hash==="#preview"||LIFF_ID.startsWith("★");
+async function lineCheck(){ // "ok" | "notfriend" | "wait" | "error"
+ if(PREVIEW)return"ok";
+ try{
+  await liff.init({liffId:LIFF_ID});
+  if(!liff.isLoggedIn()){liff.login({redirectUri:location.href});return"wait"}
+  const f=await liff.getFriendship();return f.friendFlag?"ok":"notfriend";
+ }catch(e){console.error(e);return"error"}
+}
+function needFriend(){
+ document.getElementById("area").innerHTML='<div class="off"><h2>参拝紙は、LINEで友だち登録してくださった方にお授けしています</h2>下のボタンから恵光寺のLINE公式アカウントを友だち追加して、もう一度このページを開いてください。'+
+ '<a class="btn" style="text-align:center;text-decoration:none;background:#06c755" href="https://lin.ee/90IYtIx">LINEで友だち追加</a>'+
+ '<button class="btn" style="background:#2f3b31" onclick="location.reload()">友だち追加したので、もう一度確かめる</button></div>';
+}
+function lineError(){
+ document.getElementById("area").innerHTML='<div class="off"><h2>LINEの確認ができませんでした</h2>通信の状態をご確認のうえ、もう一度NFCカードにスマホをかざしてください。うまくいかない場合は、寺務所までお声がけください。</div>';
+}
+const LINEINFO='<p class="lineinfo">参拝紙は、恵光寺のLINE公式アカウントに<b>友だち登録してくださった方</b>にお授けしています。</p>';
+const EXPL={"無量光": "<ruby>無量光<rt>むりょうこう</rt></ruby>は、<ruby>阿弥陀<rt>あみだ</rt></ruby>さまの光が、はかりしれないほど大きいことをあらわす言葉です。一年のはじめに、そのはかりしれない光の中で、今年も歩みはじめます。", "清浄光": "<ruby>清浄光<rt>しょうじょうこう</rt></ruby>は、<ruby>阿弥陀<rt>あみだ</rt></ruby>さまの清らかな光のことです。「もっとほしい」と<ruby>貪<rt>むさぼ</rt></ruby>ってしまう私の心をも照らしてくださいます。<ruby>彼岸会<rt>ひがんえ</rt></ruby><ruby>永代経<rt>えいたいきょう</rt></ruby>法要に、清らかなお<ruby>浄土<rt>じょうど</rt></ruby>に思いを寄せます。", "歓喜光": "<ruby>歓喜光<rt>かんぎこう</rt></ruby>は、よろこびをもたらす光です。腹を立ててしまう私の心をも照らし、やわらげてくださいます。新緑の季節に、いただいた<ruby>命<rt>いのち</rt></ruby>をよろこびます。", "不断光": "<ruby>不断光<rt>ふだんこう</rt></ruby>は、とぎれることなく照らしつづける光です。お<ruby>盆<rt>ぼん</rt></ruby>に亡き人を思うとき、その光は亡き人と私を、今もひとつにつつんでいます。", "無礙光": "<ruby>無礙光<rt>むげこう</rt></ruby>は、何ものにもさえぎられない光です。<ruby>親鸞聖人<rt>しんらんしょうにん</rt></ruby>は<ruby>阿弥陀<rt>あみだ</rt></ruby>さまを「<ruby>帰命尽十方無礙光如来<rt>きみょうじんじっぽうむげこうにょらい</rt></ruby>」と仰がれました。<ruby>報恩講<rt>ほうおんこう</rt></ruby>に、そのご<ruby>恩<rt>おん</rt></ruby>をよろこびます。"};
+const EVENTS=[
+ {name:"初法座",word:"無量光",color:"#B3282D"},
+ {name:"彼岸会永代経法要",word:"清浄光",color:"#5B3A8C"},
+ {name:"さつき法要",word:"歓喜光",color:"#2E7D4F"},
+ {name:"お盆法要",word:"不断光",color:"#1F3A6B"},
+ {name:"報恩講",word:"無礙光",color:"#A8740F"}
+];
+function nthSunday(y,m,n){const d=new Date(y,m-1,1);const first=1+(7-d.getDay())%7;return new Date(y,m-1,first+7*(n-1))}
+function eventDays(y){ // 報恩講は10月第1日曜とその前日の土曜
+ const s4=nthSunday(y,5,4),h=nthSunday(y,10,1),hs=new Date(y,9,h.getDate()-1);
+ return [[new Date(y,0,3),0],[new Date(y,2,20),1],[s4,2],[new Date(y,7,13),3],[hs,4],[h,4]];
+}
+function same(a,b){return a.getFullYear()==b.getFullYear()&&a.getMonth()==b.getMonth()&&a.getDate()==b.getDate()}
+const KD="〇一二三四五六七八九";
+function kan(n){if(n<10)return KD[n];if(n==10)return"十";return(n>=20?KD[Math.floor(n/10)]:"")+"十"+(n%10?KD[n%10]:"")}
+function wareki(d){return"令和"+kan(d.getFullYear()-2018)+"年"+kan(d.getMonth()+1)+"月"+kan(d.getDate())+"日"}
+
+const imgs={};
+function load(n){return new Promise(r=>{const i=new Image();i.onload=()=>r(imgs[n]=i);i.onerror=()=>r(null);i.src="img/"+n+".png"})}
+function tint(img,color,w,h){const c=document.createElement("canvas");c.width=w;c.height=h;const x=c.getContext("2d");
+ x.drawImage(img,0,0,w,h);x.globalCompositeOperation="source-in";x.fillStyle=color;x.fillRect(0,0,w,h);return c}
+function vtext(ctx,s,x,y,size,font,color,gap){ctx.font=size+"px "+font;ctx.fillStyle=color;ctx.textAlign="center";ctx.textBaseline="middle";
+ [...s].forEach((ch,i)=>{if(ch==="　")return;ctx.fillText(ch,x,y+i*size*(gap||1.12))})}
+function rnd(seed){return()=>{seed=(seed*16807)%2147483647;return seed/2147483647}}
+
+function seal(size,seed){ // 朱印「恵光寺印」（白文の角印）
+ const c=document.createElement("canvas");c.width=c.height=size;const x=c.getContext("2d"),r=rnd(seed);
+ x.fillStyle="#C8312B";const rr=size*.06;
+ x.beginPath();x.roundRect(4,4,size-8,size-8,rr);x.fill();
+ x.strokeStyle="#fff";x.lineWidth=size*.018;x.beginPath();x.roundRect(size*.07,size*.07,size*.86,size*.86,rr*.6);x.stroke();
+ x.fillStyle="#fff";x.textAlign="center";x.textBaseline="middle";x.font=(size*.34)+"px 'Zen Antique','Shippori Mincho B1',serif";
+ const R=size*.69,L=size*.31,T=size*.31,B=size*.69;
+ x.fillText("恵",R,T);x.fillText("光",R,B);x.fillText("寺",L,T);x.fillText("印",L,B);
+ x.globalCompositeOperation="destination-out"; // かすれ
+ for(let i=0;i<900;i++){x.globalAlpha=.15+r()*.5;x.beginPath();x.arc(r()*size,r()*size,r()*size*.012,0,7);x.fill()}
+ for(let i=0;i<16;i++){x.globalAlpha=.3+r()*.4;const edge=r()<.5?r()*size*.05:size-r()*size*.05,along=r()*size;
+  x.beginPath();if(r()<.5)x.arc(edge,along,size*(.01+r()*.025),0,7);else x.arc(along,edge,size*(.01+r()*.025),0,7);x.fill()}
+ return c}
+
+function draw(ev,date){
+ const cv=document.getElementById("cv"),x=cv.getContext("2d"),W=1080,H=1920;
+ x.globalCompositeOperation="source-over";x.globalAlpha=1;
+ x.fillStyle=ev.color;x.fillRect(0,0,W,H); // 背景の一色
+ if(imgs.mon){const m=tint(imgs.mon,"#ffffff",110,110);x.globalAlpha=.13; // 下がり藤の紋様
+  for(let row=0,y=-40;y<H+100;row++,y+=170)for(let xx=(row%2?-30:55);xx<W+100;xx+=170)x.drawImage(m,xx,y);x.globalAlpha=1}
+ const px=100,py=150,pw=880,ph=1620; // 和紙の台紙
+ x.shadowColor="rgba(0,0,0,.35)";x.shadowBlur=30;x.shadowOffsetY=10;x.fillStyle="#FBF7EC";x.fillRect(px,py,pw,ph);
+ x.shadowColor="transparent";x.shadowBlur=0;x.shadowOffsetY=0;
+ x.strokeStyle="#B8975A";x.lineWidth=4;x.strokeRect(px+20,py+20,pw-40,ph-40);x.lineWidth=1.5;x.strokeRect(px+30,py+30,pw-60,ph-60);
+ if(imgs.mon)x.drawImage(tint(imgs.mon,ev.color,100,100),W/2-50,py+60); // 上の紋
+ const s=seal(500,[...ev.word].reduce((a,c)=>a+c.charCodeAt(0),7)); // 中央の朱印
+ x.save();x.translate(W/2,960);x.rotate(-.03);x.globalAlpha=.92;x.globalCompositeOperation="multiply";x.drawImage(s,-250,-250);x.restore();
+ x.globalCompositeOperation="source-over";x.globalAlpha=1;
+ vtext(x,ev.word,W/2,700,250,"'Yuji Syuku','Shippori Mincho B1',serif","#161512",1.04); // 三文字
+ vtext(x,wareki(date),px+pw-110,py+180,50,"'Shippori Mincho B1',serif","#222",1.15); // 日付
+ vtext(x,ev.name,px+pw-180,py+240,38,"'Shippori Mincho B1',serif","#555",1.15); // 法要名
+ vtext(x,"柳の御坊　恵光寺",px+130,py+760,60,"'Shippori Mincho B1',serif","#222",1.12); // 寺名
+ if(imgs.horin){x.globalAlpha=.85;x.globalCompositeOperation="multiply"; // 法輪の印
+  x.drawImage(tint(imgs.horin,"#C8312B",170,170),px+45,py+ph-290);x.globalAlpha=1;x.globalCompositeOperation="source-over"}
+ return cv;
+}
+function fname(d){return"ecoji_sanpai_"+d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")+".png"}
+function show(ev,date){
+ const area=document.getElementById("area");
+ area.innerHTML=LINEINFO+'<img id="card" alt="参拝紙"><button class="btn" id="dl">画像を保存する</button><div class="msg" id="msg"></div><div class="expl" id="expl"></div><p class="note">ボタンで保存できないときは、画像を長押しして「写真に保存」を選んでください。</p>';
+ const cv=draw(ev,date);
+ document.getElementById("card").src=cv.toDataURL("image/png");
+ document.getElementById("dl").onclick=()=>save(cv,date);
+ document.getElementById("expl").innerHTML='<h3>'+ev.word.replace(/(.)/g,'$1')+'</h3>'+(EXPL[ev.word]||'')+'<p class="sub"><ruby>阿弥陀<rt>あみだ</rt></ruby>さまの十二の光（<ruby>十二光<rt>じゅうにこう</rt></ruby>）のひとつ</p>';
+}
+async function save(cv,date){
+ const msg=document.getElementById("msg");msg.textContent="";
+ const blob=await new Promise(r=>cv.toBlob(r,"image/png"));
+ let dl=null;try{dl=window.claude&&await window.claude.use("downloads")}catch(e){}
+ if(dl){try{await dl.save({filename:fname(date),data:blob});msg.textContent="保存しました。";return}
+  catch(e){if(e&&e.code==="declined"){msg.textContent="保存をやめました。";return}}}
+ const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=fname(date);document.body.appendChild(a);a.click();a.remove();
+ setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+}
+function offday(today){
+ const t0=new Date(today.getFullYear(),today.getMonth(),today.getDate());
+ const nxt=[...eventDays(today.getFullYear()),...eventDays(today.getFullYear()+1)].find(([d])=>d>=t0);
+ document.getElementById("area").innerHTML='<div class="off"><h2>参拝紙は年五回、本堂の法要の日にお授けしています</h2>次は<b>'+(nxt[0].getMonth()+1)+'月'+nxt[0].getDate()+'日（'+EVENTS[nxt[1]].name+'）</b>です。'+LINEINFO+'</div>';
+}
+(async()=>{
+ await Promise.all([load("mon"),load("horin")]);
+ try{await Promise.all(["250px 'Yuji Syuku'","60px 'Shippori Mincho B1'","100px 'Zen Antique'"].map(f=>document.fonts.load(f,"無量光清浄歓喜不断礙恵光寺印令和柳御坊")))}catch(e){}
+ const today=new Date();const hit=eventDays(today.getFullYear()).find(([d])=>same(d,today));
+ if(!hit){offday(today)}
+ else{document.getElementById("area").innerHTML='<div class="off">LINEの登録を確認しています…</div>';
+  const st=await lineCheck();
+  if(st==="ok")show(EVENTS[hit[1]],today);else if(st==="notfriend")needFriend();else if(st==="error")lineError();}
+ if(PREVIEW)document.getElementById("pv").hidden=false;
+ const pv=document.getElementById("pv"); // 見本ボタン（試作中のみ）
+ eventDays(2027).filter(([d,i],k,a)=>!(i===4&&a[k+1])).forEach(([d,i])=>{const b=document.createElement("button");b.textContent=EVENTS[i].name;
+  b.onclick=()=>{pv.querySelectorAll("button").forEach(z=>z.classList.remove("on"));b.classList.add("on");show(EVENTS[i],d)};pv.appendChild(b)});
+})();
+</script></body></html>
